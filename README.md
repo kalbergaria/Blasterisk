@@ -1,8 +1,8 @@
 # Blasterisk
 A BlasterBall style terminal game!
 
-# Title Screen
+## Title Screen
 ![Blasterisk Title Screen](/images/TitleScreen.png)
 
-# Menu
+## Menu
 ![Blasterisk Menu Screen](/images/Menu.png)
