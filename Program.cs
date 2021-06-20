@@ -7,7 +7,8 @@ namespace Blasterisk
         static void Main(string[] args)
         {
             BlasteriskUI blasteriskUi = new BlasteriskUI();
-            blasteriskUi.updateGameStatus();
+            blasteriskUi.titleScreen();
+            blasteriskUi.menu();
 		}
     }
 }
