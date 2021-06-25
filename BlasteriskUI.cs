@@ -10,8 +10,8 @@ namespace Blasterisk
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Console Window
         ///////////////////////////////////////////////////////////////////////////////////////////
-        private static readonly int CONSOLE_WIDTH   = 106;
-        private static readonly int CONSOLE_HEIGHT  = 25;
+        public static readonly int CONSOLE_WIDTH   = 106;
+        public static readonly int CONSOLE_HEIGHT  = 25;
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // UI State Management
@@ -257,7 +257,7 @@ namespace Blasterisk
         private Stopwatch levelStopWatch = new Stopwatch();
 
         private static readonly string[] PLAY_HIGH_SCORE_STRINGS =
-        {@"    ___ __    __ __ _  _  __",
+        {@"   ___ __     __ __ _  _  __",
          @"|_| | /__|_| (_ /  / \|_)|_ ",
          @"| |_|_\_|| | __)\__\_/| \|__"};
         private static readonly int PLAY_HIGH_SCORE_START_COL = 72;
@@ -299,6 +299,11 @@ namespace Blasterisk
         private static readonly int SCORE_TIME_UPDATE_INTERVAL = 100; // ms
         private static Mutex scoreMutex = new Mutex();
         private static Mutex timeMutex = new Mutex();
+
+        // Paddle
+        private static readonly string PADDLE_STRING = "=====";
+        public static readonly int MAX_PADDLE_COL = PLAY_DIVIDER_START_COL - PADDLE_STRING.Length;
+        private HorizontalPaddle paddle = new HorizontalPaddle(CONSOLE_HEIGHT - 3, PADDLE_STRING);
 
         ///////////////////////////////////////////////////////////////////////////////////////////
         // Constructor
@@ -541,10 +546,70 @@ namespace Blasterisk
             levelStopWatch.Start();
 
             // Start the timer to periodically print the prompt
-            scoreAndTimeUpdateTimer = new System.Timers.Timer();
-            scoreAndTimeUpdateTimer.Elapsed += (sender, e) =>
-                onScoreTimeUpdateTimerExpiration(sender, e, this);
-            scoreAndTimeUpdateTimer.Start();
+            //scoreAndTimeUpdateTimer = new System.Timers.Timer(SCORE_TIME_UPDATE_INTERVAL);
+            //scoreAndTimeUpdateTimer.Elapsed += (sender, e) =>
+            //    onScoreTimeUpdateTimerExpiration(sender, e, this);
+            //scoreAndTimeUpdateTimer.Start();
+
+            // Draw the initial paddle
+            int paddleCol = 0;
+            paddle.updatePaddle(paddleCol);
+
+            // Handle the game play
+            bool levelComplete = false;
+            bool gameOver = false;
+            do
+            {
+                do
+                {
+                    // Handle user input
+                    switch (Console.ReadKey().Key)
+                    {
+                        // Move paddle left
+                        case ConsoleKey.LeftArrow:
+                            paddleCol--;
+                            break;
+
+                        // Move paddle right
+                        case ConsoleKey.RightArrow:
+                            paddleCol++;
+                            break;
+
+                        // Launch asterisk
+                        case ConsoleKey.Spacebar:
+                            break;
+
+                        // Quit
+                        case ConsoleKey.Q:
+                            gameOver = true;
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    // Make sure the paddle does not go beyond the bounds of the play region
+                    if (paddleCol > MAX_PADDLE_COL)
+                    {
+                        paddleCol = MAX_PADDLE_COL;
+                    }
+                    if (paddleCol < 0)
+                    {
+                        paddleCol = 0;
+                    }
+                    paddle.updatePaddle(paddleCol);
+
+                    // By sleeping 20 ms between checking the user input, we are restricting the
+                    // player's FPS to 1000/10 = 100
+                    Thread.Sleep(10);
+
+                } while (!levelComplete || !gameOver);
+
+                // Change the level
+
+            } while (!gameOver);
+
+
 
             // TEST SCORE
             int q = 0;
